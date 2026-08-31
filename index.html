@@ -2,93 +2,166 @@
 <html lang="fa" dir="rtl">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
     <script src="https://tapi.bale.ai/miniapp.js?3"></script>
-
-    <title>مینی اپ آزمایشی آمال</title>
-
+    <title>ورود به مینی اپ آمال</title>
     <style>
+        :root { font-family: Tahoma, Arial, sans-serif; color-scheme: light; }
+        * { box-sizing: border-box; }
         body {
-            font-family: Tahoma, Arial, sans-serif;
-            direction: rtl;
-            text-align: center;
-            background: #f5f5f5;
             margin: 0;
-            padding: 40px 15px;
+            min-height: 100vh;
+            background: #f5f6f8;
+            color: #202124;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
         }
-
-        .box {
-            max-width: 500px;
-            margin: auto;
-            background: white;
-            border-radius: 16px;
-            padding: 30px;
-            box-shadow: 0 4px 20px rgba(0,0,0,.08);
+        .login-card {
+            width: 100%;
+            max-width: 420px;
+            background: #fff;
+            border-radius: 18px;
+            padding: 28px 24px;
+            box-shadow: 0 8px 28px rgba(0,0,0,.08);
         }
-
-        h1 {
-            margin-top: 0;
-        }
-
-        .success {
-            color: green;
-            font-weight: bold;
-        }
-
-        #bale-status {
-            margin-top: 20px;
-            padding: 15px;
-            background: #f2f2f2;
+        .title { margin: 0 0 8px; font-size: 25px; text-align: center; }
+        .subtitle { margin: 0 0 26px; color: #666; font-size: 14px; line-height: 1.8; text-align: center; }
+        .field { margin-bottom: 18px; }
+        label { display: block; font-size: 14px; margin-bottom: 8px; font-weight: bold; }
+        input {
+            width: 100%;
+            height: 48px;
+            border: 1px solid #d6d9de;
             border-radius: 10px;
+            padding: 0 13px;
+            font: inherit;
+            outline: none;
+            background: #fff;
         }
+        input:focus { border-color: #6b7280; box-shadow: 0 0 0 3px rgba(107,114,128,.10); }
+        .password-wrap { position: relative; }
+        .password-wrap input { padding-left: 72px; }
+        .toggle-password {
+            position: absolute;
+            left: 8px;
+            top: 7px;
+            height: 34px;
+            border: 0;
+            background: transparent;
+            cursor: pointer;
+            font: inherit;
+            color: #555;
+        }
+        .login-button {
+            width: 100%;
+            height: 50px;
+            border: 0;
+            border-radius: 10px;
+            cursor: pointer;
+            font: inherit;
+            font-weight: bold;
+            background: #222;
+            color: #fff;
+            margin-top: 4px;
+        }
+        .notice {
+            margin-top: 18px;
+            padding: 12px 14px;
+            border-radius: 10px;
+            background: #fff7df;
+            color: #6d5200;
+            font-size: 13px;
+            line-height: 1.8;
+            display: none;
+        }
+        .bale-status { margin-top: 18px; color: #777; font-size: 12px; text-align: center; }
+        .hint { margin-top: 7px; color: #777; font-size: 12px; line-height: 1.7; }
     </style>
 </head>
-
 <body>
+    <main class="login-card">
+        <h1 class="title">مینی اپ آمال</h1>
+        <p class="subtitle">برای مشاهده گزارش‌های مجاز، وارد حساب کاربری خود شوید.</p>
 
-<div class="box">
+        <form id="login-form" autocomplete="off">
+            <div class="field">
+                <label for="username">نام کاربری / کد پرسنلی</label>
+                <input id="username" name="username" type="text" autocomplete="username"
+                       required maxlength="100" placeholder="نام کاربری یا کد پرسنلی">
+                <div class="hint">برای کاربران سازمانی، نام کاربری همان کد پرسنلی خواهد بود.</div>
+            </div>
 
-    <h1>مینی اپ آمال</h1>
+            <div class="field">
+                <label for="password">رمز عبور</label>
+                <div class="password-wrap">
+                    <input id="password" name="password" type="password"
+                           autocomplete="current-password" required maxlength="200"
+                           placeholder="رمز عبور">
+                    <button id="toggle-password" class="toggle-password" type="button">نمایش</button>
+                </div>
+            </div>
 
-    <p class="success">
-        صفحه با موفقیت اجرا شد.
-    </p>
+            <button class="login-button" type="submit">ورود</button>
+        </form>
 
-    <div id="bale-status">
-        در حال بررسی محیط بله...
-    </div>
+        <div id="notice" class="notice"></div>
+        <div id="bale-status" class="bale-status">در حال آماده‌سازی مینی اپ...</div>
+    </main>
 
-</div>
+    <script>
+        (() => {
+            "use strict";
 
-<script>
+            const form = document.getElementById("login-form");
+            const usernameInput = document.getElementById("username");
+            const passwordInput = document.getElementById("password");
+            const togglePassword = document.getElementById("toggle-password");
+            const notice = document.getElementById("notice");
+            const baleStatus = document.getElementById("bale-status");
 
-    const statusElement = document.getElementById("bale-status");
+            function showNotice(message) {
+                notice.textContent = message;
+                notice.style.display = "block";
+            }
 
-    if (
-        window.Bale &&
-        window.Bale.WebApp
-    ) {
+            togglePassword.addEventListener("click", () => {
+                const isPassword = passwordInput.type === "password";
+                passwordInput.type = isPassword ? "text" : "password";
+                togglePassword.textContent = isPassword ? "مخفی" : "نمایش";
+            });
 
-        statusElement.innerHTML =
-            "ارتباط با SDK بله برقرار شد.";
+            form.addEventListener("submit", (event) => {
+                event.preventDefault();
 
-        if (window.Bale.WebApp.ready) {
-            window.Bale.WebApp.ready();
-        }
+                const username = usernameInput.value.trim();
+                const password = passwordInput.value;
 
-        if (window.Bale.WebApp.expand) {
-            window.Bale.WebApp.expand();
-        }
+                if (!username || !password) {
+                    showNotice("نام کاربری و رمز عبور را کامل وارد کنید.");
+                    return;
+                }
 
-    } else {
+                showNotice(
+                    "صفحه ورود آماده است. احراز هویت واقعی در مرحله بعد به سرور امن متصل می‌شود."
+                );
+            });
 
-        statusElement.innerHTML =
-            "صفحه خارج از Mini App بله باز شده است.";
-
-    }
-
-</script>
-
+            if (window.Bale && window.Bale.WebApp) {
+                try {
+                    window.Bale.WebApp.ready();
+                    if (typeof window.Bale.WebApp.expand === "function") {
+                        window.Bale.WebApp.expand();
+                    }
+                    baleStatus.textContent = "مینی اپ بله آماده است.";
+                } catch (error) {
+                    baleStatus.textContent = "صفحه آماده است.";
+                }
+            } else {
+                baleStatus.textContent = "صفحه خارج از محیط مینی اپ بله باز شده است.";
+            }
+        })();
+    </script>
 </body>
 </html>
