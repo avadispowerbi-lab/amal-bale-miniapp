@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <script src="https://tapi.bale.ai/miniapp.js?3"></script>
+
+    <title>مینی اپ آزمایشی آمال</title>
+
+    <style>
+        body {
+            font-family: Tahoma, Arial, sans-serif;
+            direction: rtl;
+            text-align: center;
+            background: #f5f5f5;
+            margin: 0;
+            padding: 40px 15px;
+        }
+
+        .box {
+            max-width: 500px;
+            margin: auto;
+            background: white;
+            border-radius: 16px;
+            padding: 30px;
+            box-shadow: 0 4px 20px rgba(0,0,0,.08);
+        }
+
+        h1 {
+            margin-top: 0;
+        }
+
+        .success {
+            color: green;
+            font-weight: bold;
+        }
+
+        #bale-status {
+            margin-top: 20px;
+            padding: 15px;
+            background: #f2f2f2;
+            border-radius: 10px;
+        }
+    </style>
+</head>
+
+<body>
+
+<div class="box">
+
+    <h1>مینی اپ آمال</h1>
+
+    <p class="success">
+        صفحه با موفقیت اجرا شد.
+    </p>
+
+    <div id="bale-status">
+        در حال بررسی محیط بله...
+    </div>
+
+</div>
+
+<script>
+
+    const statusElement = document.getElementById("bale-status");
+
+    if (
+        window.Bale &&
+        window.Bale.WebApp
+    ) {
+
+        statusElement.innerHTML =
+            "ارتباط با SDK بله برقرار شد.";
+
+        if (window.Bale.WebApp.ready) {
+            window.Bale.WebApp.ready();
+        }
+
+        if (window.Bale.WebApp.expand) {
+            window.Bale.WebApp.expand();
+        }
+
+    } else {
+
+        statusElement.innerHTML =
+            "صفحه خارج از Mini App بله باز شده است.";
+
+    }
+
+</script>
+
+</body>
+</html>
